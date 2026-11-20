@@ -85,9 +85,14 @@ batch size 16, linear warmup/decay, mixed precision, max sequence length 64.
 `n` is the number of random seeds. Rows with `n = 1` are single runs and are only indicative.
 
 **Findings**
-- Image-only is close to chance, so the image alone cannot identify the sentiment toward a specific aspect.
-- With the aspect masked, adding the image gives a modest gain of about 1.5 to 1.9 F1 over text-only, and cross-attention is the most stable fusion (lowest variance).
-- Removing the aspect entirely lowers all models by about 4 F1 points; the benefit of the image is small and not consistent in that single-seed setting.
+
+Only the `mask` setting has multiple seeds (n = 4); `explicit`, `remove` and the image-only model are single runs, so comparisons involving them are indicative only.
+
+- **Image alone is weak.** Image-only reaches 47.41 accuracy and 33.86 macro-F1 (one run; the image model never sees text, so its aspect mode is irrelevant). This is well below every text-based model, so the image alone does not identify the sentiment toward a specific aspect. Whether 47.41 is above the majority-class rate has not been checked.
+- **Adding the image helps slightly when the aspect is masked.** Over text-only (63.02 F1, 66.00 acc), concat gains +1.53 F1 / +1.10 acc and cross-attention gains +1.92 F1 / +1.36 acc. With n = 4 and F1 std of about 1, the cross-attention gain is reasonably clear, while the concat gain is within run-to-run noise.
+- **Variance.** Among the multimodal models, cross-attention has the lowest F1 std (0.66 vs 1.40 for concat). This is not true for every metric: text-only has the lowest accuracy std (0.61 vs 0.72 concat and 0.79 cross). With four seeds these std estimates are themselves noisy.
+- **Explicit aspect gives little extra (single run).** Compared with `mask`, `explicit` changes F1 by +0.72 (text), +1.27 (concat) and -0.92 (cross), a small and mixed difference. Cross-attention is below text-only in accuracy under `explicit` (66.29 vs 67.34).
+- **Removing the aspect hurts all models, cross-attention most.** Relative to `mask`, F1 drops by 3.44 (text), 4.33 (concat) and 6.39 (cross); relative to `explicit` the drops are 4.16, 5.60 and 5.47. Under `remove`, cross-attention is the lowest model (58.55 F1), and the image gives no consistent benefit over text-only (+0.64 F1 for concat, -1.03 for cross). The `remove` and `explicit` rows are single seeds, so these differences should not be over-interpreted.
 
 ## Files
 
