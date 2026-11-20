@@ -1,0 +1,5 @@
+*.pt
+data/
+Twitter_17/
+__pycache__/
+*.pyc
